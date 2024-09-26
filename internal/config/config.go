@@ -1,24 +1,78 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
+	"encoding/json"
+	"os"
+	"reflect"
+
 	_ "github.com/joho/godotenv/autoload"
 )
 
-type ConfigDatabase struct {
-	Port string `env:"DB_PORT" env-default:"5432"`
-	Host string `env:"DB_HOST" env-default:"localhost"`
-	Name string `env:"DB_NAME" env-default:"postgres"`
-	User string `env:"DB_USER" env-default:"user"`
-	Pass string `env:"DB_PASS"`
+type Config struct {
+	Port StringValue       `env:"DB_PORT" env-default:"5432"`
+	Host StringValue       `env:"DB_HOST" env-default:"localhost"`
+	Name StringValue       `env:"DB_NAME" env-default:"postgres"`
+	User StringValue       `env:"DB_USER" env-default:"user"`
+	Pass SecretStringValue `env:"DB_PASS"`
 }
 
-func MustLoad() *ConfigDatabase {
-	var cfg ConfigDatabase
+type StringValue struct {
+	Value string
+}
 
-	if err := cleanenv.ReadEnv(&cfg); err != nil {
-		panic("Failed to read env " + err.Error())
+func (s StringValue) String() string {
+	return s.Value
+}
+
+func (s StringValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+type SecretStringValue struct {
+	Value string
+}
+
+func (s SecretStringValue) String() string {
+	return "[HIDDEN]"
+}
+
+func (s SecretStringValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func MustLoad() *Config {
+	var cfg Config
+
+	if err := readConfig(&cfg); err != nil {
+		panic("Failed to read env: " + err.Error())
 	}
 
 	return &cfg
+}
+
+func readConfig(cfg *Config) error {
+	val := reflect.ValueOf(cfg).Elem()
+	typ := reflect.TypeOf(cfg).Elem()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		envKey := fieldType.Tag.Get("env")
+		defaultValue := fieldType.Tag.Get("env-default")
+
+		envValue, exists := os.LookupEnv(envKey)
+		if !exists {
+			envValue = defaultValue
+		}
+
+		if field.Kind() == reflect.Struct {
+			valueField := field.FieldByName("Value")
+			if valueField.IsValid() && valueField.CanSet() {
+				valueField.SetString(envValue)
+			}
+		}
+	}
+
+	return nil
 }

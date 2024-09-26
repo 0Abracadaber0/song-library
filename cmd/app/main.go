@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
+	"os"
 	"song_library/internal/config"
 )
 
 func main() {
 	cfg := config.MustLoad()
 
-	// TODO: запретить вывод пароля в логи
-
-	fmt.Println(cfg)
+	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	log.Info("App has been started", "cfg", cfg)
 }
