@@ -1,0 +1,10 @@
+version: '3'
+services:
+  library:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    env_file:
+      - .env
