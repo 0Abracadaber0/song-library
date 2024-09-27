@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"os"
 	"reflect"
-
-	_ "github.com/joho/godotenv/autoload"
+	//_ "github.com/joho/godotenv/autoload"
 )
 
 type Config struct {
-	Port StringValue       `env:"DB_PORT" env-default:"5432"`
-	Host StringValue       `env:"DB_HOST" env-default:"localhost"`
-	Name StringValue       `env:"DB_NAME" env-default:"postgres"`
-	User StringValue       `env:"DB_USER" env-default:"user"`
-	Pass SecretStringValue `env:"DB_PASS"`
+	AppHost StringValue       `env:"APP_HOST" env-default:"localhost:8080"`
+	DbPort  StringValue       `env:"DB_PORT" env-default:"5432"`
+	DbHost  StringValue       `env:"DB_HOST" env-default:"localhost"`
+	DbName  StringValue       `env:"DB_NAME" env-default:"postgres"`
+	DbUser  StringValue       `env:"DB_USER" env-default:"user"`
+	DbPass  SecretStringValue `env:"DB_PASS"`
 }
 
 type StringValue struct {

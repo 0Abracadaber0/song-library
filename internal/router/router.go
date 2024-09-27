@@ -1,20 +1,24 @@
 package router
 
-import "github.com/gofiber/fiber/v2"
+import (
+	handler "song_library/internal/handlers"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func SetupRoutes(app *fiber.App) {
 	// Get list of songs
-	app.Get("/songs")
+	app.Get("/songs", handler.SongsHandler)
 
 	// Get lyrics
-	app.Get("/songs/:id/lyrics")
+	app.Get("/songs/:id/lyrics", handler.LyricsHandler)
 
 	// Delete the song
-	app.Delete("/songs/:id")
+	app.Delete("/songs/:id", handler.DeleteSongHandler)
 
 	// Update song
-	app.Put("/songs/:id")
+	app.Put("/songs/:id", handler.UpdateSongHandler)
 
-	// Delete song
-	app.Post("/songs")
+	// Add song
+	app.Post("/songs", handler.AddSongHandler)
 }
