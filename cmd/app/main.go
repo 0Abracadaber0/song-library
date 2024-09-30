@@ -14,7 +14,7 @@ func main() {
 	cfg := config.MustLoad()
 
 	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	log.Info("App is starting...", "cfg", cfg)
+	log.Info("app is starting...", "cfg", cfg)
 
 	app := fiber.New()
 
@@ -22,12 +22,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	log.Info("succesfull connection to the database")
 
-	log.Debug("", "db", db)
+	if err := database.RunMigrations(log, db, cfg); err != nil {
+		panic(err)
+	}
+	log.Info("succesfull migrations")
 
 	router.SetupRoutes(app)
 
 	if err := app.Listen(cfg.AppHost.Value); err != nil {
-		panic("Failed start of app " + err.Error())
+		panic("failed start of app " + err.Error())
 	}
 }

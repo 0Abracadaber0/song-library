@@ -19,5 +19,8 @@ func UpdateSongHandler(ctx *fiber.Ctx) error {
 }
 
 func AddSongHandler(ctx *fiber.Ctx) error {
+	//group := ctx.FormValue("group")
+	//song := ctx.FormValue("song")
+
 	return nil
 }
