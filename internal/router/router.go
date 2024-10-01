@@ -16,7 +16,10 @@ func SetupRoutes(app *fiber.App, cfg *config.Config, log *slog.Logger) {
 	app.Get("/songs/:id/lyrics", handler.LyricsHandler)
 
 	// Delete the song
-	app.Delete("/songs/:id", handler.DeleteSongHandler)
+	app.Delete("/songs/:id", func(ctx *fiber.Ctx) error {
+		log.Info("DELETE /songs/:id")
+		return handler.DeleteSongHandler(ctx, cfg, log)
+	})
 
 	// Update song
 	app.Put("/songs/:id", handler.UpdateSongHandler)
@@ -24,7 +27,7 @@ func SetupRoutes(app *fiber.App, cfg *config.Config, log *slog.Logger) {
 	// Add song
 	app.Post("/songs", func(ctx *fiber.Ctx) error {
 		log.Info("POST /songs")
-		return handler.AddSongHandler(ctx, cfg)
+		return handler.AddSongHandler(ctx, cfg, log)
 	})
 
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"song_library/internal/config"
 	"song_library/internal/database"
 	"song_library/internal/service"
@@ -16,8 +17,31 @@ func LyricsHandler(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func DeleteSongHandler(ctx *fiber.Ctx) error {
-	return nil
+func DeleteSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) error {
+	songID := ctx.Params("id")
+
+	result, err := database.DB.Exec("DELETE FROM songs WHERE id = $1", songID)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if rowsAffected == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Song not found",
+		})
+	}
+
+	log.Info("the song has been deleted")
+	return ctx.SendString("The song has been deleted")
 }
 
 func UpdateSongHandler(ctx *fiber.Ctx) error {
@@ -29,7 +53,7 @@ type SongRequest struct {
 	SongName string `json:"song"`
 }
 
-func AddSongHandler(ctx *fiber.Ctx, cfg *config.Config) error {
+func AddSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) error {
 	var request SongRequest
 
 	if err := ctx.BodyParser(&request); err != nil {
@@ -63,5 +87,6 @@ func AddSongHandler(ctx *fiber.Ctx, cfg *config.Config) error {
 		})
 	}
 
+	log.Info("the song has been added")
 	return ctx.SendString("The song has been added")
 }
