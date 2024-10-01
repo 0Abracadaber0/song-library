@@ -12,13 +12,16 @@ func SetupRoutes(app *fiber.App, cfg *config.Config, log *slog.Logger) {
 	// Get list of songs
 	app.Get("/songs", handler.SongsHandler)
 
-	// Get lyrics
-	app.Get("/songs/:id/lyrics", handler.LyricsHandler)
+	// Get verses
+	app.Get("/songs/:id/verses", func(ctx *fiber.Ctx) error {
+		log.Info("GET /songs/:id/verses")
+		return handler.VersesHandler(ctx, log)
+	})
 
 	// Delete the song
 	app.Delete("/songs/:id", func(ctx *fiber.Ctx) error {
 		log.Info("DELETE /songs/:id")
-		return handler.DeleteSongHandler(ctx, cfg, log)
+		return handler.DeleteSongHandler(ctx, log)
 	})
 
 	// Update song

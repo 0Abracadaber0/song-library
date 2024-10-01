@@ -13,11 +13,7 @@ func SongsHandler(ctx *fiber.Ctx) error {
 	return ctx.SendString("hi")
 }
 
-func LyricsHandler(ctx *fiber.Ctx) error {
-	return nil
-}
-
-func DeleteSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) error {
+func DeleteSongHandler(ctx *fiber.Ctx, log *slog.Logger) error {
 	songID := ctx.Params("id")
 
 	if err := service.DeleteSong(songID); err != nil {

@@ -35,3 +35,29 @@ func SaveVerses(songID int, verses []model.Verse) error {
 	}
 	return nil
 }
+
+func OutputVerses(songID string, limit, offset int) ([]string, error) {
+	rows, err := database.DB.Query(
+		`SELECT verse_text FROM verses WHERE song_id = $1 ORDER BY id LIMIT $2 OFFSET $3`,
+		songID, limit, offset,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve verses: %w", err)
+	}
+	defer rows.Close()
+
+	var verses []string
+	for rows.Next() {
+		var verse string
+		if err := rows.Scan(&verse); err != nil {
+			return nil, fmt.Errorf("failed to scan verse: %w", err)
+		}
+		verses = append(verses, verse)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %w", err)
+	}
+
+	return verses, nil
+}
