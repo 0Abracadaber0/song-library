@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 9s
       retries: 5
@@ -19,13 +19,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8088:8088"
     env_file:
       - .env
+    ports:
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+
+  api_service:
+    image: 305cf005838a
+    ports:
+      - "3001:3001"
 
 volumes:
   postgres_data:

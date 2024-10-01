@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log/slog"
 	"song_library/internal/config"
@@ -11,7 +10,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func RunMigrations(log *slog.Logger, db *sql.DB, cfg *config.Config) error {
+func RunMigrations(log *slog.Logger, cfg *config.Config) error {
 	m, err := migrate.New(
 		"file://migrations/",
 		getConnectionString(cfg),

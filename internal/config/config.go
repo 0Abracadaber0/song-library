@@ -7,13 +7,15 @@ import (
 )
 
 type Config struct {
-	AppHost      StringValue       `env:"APP_HOST" env-default:"localhost:8080"`
+	AppHost      StringValue       `env:"APP_HOST" env-default:"0.0.0.0"`
+	AppPort      StringValue       `env:"APP_PORT" env-default:"8080"`
 	DbPort       StringValue       `env:"POSTGRES_PORT" env-default:"5432"`
 	DbHost       StringValue       `env:"POSTGRES_HOST" env-default:"postgres"`
 	DbName       StringValue       `env:"POSTGRES_DB" env-default:"library"`
 	DbUser       StringValue       `env:"POSTGRES_USER" env-default:"user"`
 	DbPass       SecretStringValue `env:"POSTGRES_PASSWORD"`
-	ExternalHost StringValue       `env:"EXTERNAL_HOST"`
+	ExternalHost StringValue       `env:"EXTERNAL_HOST" env-default:"api_service"`
+	ExternalPort StringValue       `env:"EXTERNAL_PORT" env-default:"3001"`
 }
 
 type StringValue struct {

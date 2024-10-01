@@ -9,24 +9,24 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func ConnectDB(
-	log *slog.Logger,
-	cfg *config.Config,
-) (*sql.DB, error) {
+var DB *sql.DB
+
+func ConnectDB(log *slog.Logger, cfg *config.Config) error {
 	connStr := getConnectionString(cfg)
 	log.Info("Connecting with connection string:", connStr, connStr)
 
-	db, err := sql.Open("postgres", connStr)
+	var err error
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed connect to database: %w", err)
+		return fmt.Errorf("failed connect to database: %w", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("failed ping check: %w", err)
+	if err := DB.Ping(); err != nil {
+		return fmt.Errorf("failed ping check: %w", err)
 	}
 
 	log.Info("Succesfull connect to database")
-	return db, nil
+	return nil
 }
 
 func getConnectionString(cfg *config.Config) string {

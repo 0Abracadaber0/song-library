@@ -6,6 +6,7 @@ import (
 	"song_library/internal/config"
 	"song_library/internal/database"
 	"song_library/internal/router"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,22 +17,26 @@ func main() {
 	log := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	log.Info("app is starting...", "cfg", cfg)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ReadTimeout:  20 * time.Second,
+		WriteTimeout: 20 * time.Second,
+	})
 
-	db, err := database.ConnectDB(log, cfg)
-	if err != nil {
+	if err := database.ConnectDB(log, cfg); err != nil {
 		panic(err)
 	}
 	log.Info("succesfull connection to the database")
 
-	if err := database.RunMigrations(log, db, cfg); err != nil {
+	if err := database.RunMigrations(log, cfg); err != nil {
 		panic(err)
 	}
 	log.Info("succesfull migrations")
 
-	router.SetupRoutes(app)
+	router.SetupRoutes(app, cfg, log)
 
-	if err := app.Listen(cfg.AppHost.Value); err != nil {
-		panic("failed start of app " + err.Error())
+	log.Info("Starting Fiber on", "host", cfg.AppHost.Value)
+
+	if err := app.Listen(cfg.AppHost.Value + ":" + cfg.AppPort.Value); err != nil {
+		panic(err)
 	}
 }
