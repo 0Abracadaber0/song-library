@@ -7,3 +7,8 @@ type Song struct {
 	Text        string `json:"text"`
 	Patronymic  string `json:"patronymic"`
 }
+
+type Verse struct {
+	VerseNumber int    `json:"verseNumber"`
+	VerseText   string `json:"verseText"`
+}

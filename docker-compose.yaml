@@ -28,7 +28,7 @@ services:
         condition: service_healthy
 
   api_service:
-    image: 305cf005838a
+    image: 83fb7f42ce39
     ports:
       - "3001:3001"
 
