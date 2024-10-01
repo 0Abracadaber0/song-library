@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"song_library/internal/config"
 	"song_library/internal/database"
+	model "song_library/internal/models"
 	"song_library/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -44,17 +45,51 @@ func DeleteSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) err
 	return ctx.SendString("The song has been deleted")
 }
 
-func UpdateSongHandler(ctx *fiber.Ctx) error {
-	return nil
-}
+func UpdateSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) error {
+	songID := ctx.Params("id")
 
-type SongRequest struct {
-	Group    string `json:"group"`
-	SongName string `json:"song"`
+	var request model.Song
+	if err := ctx.BodyParser(&request); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request format",
+		})
+	}
+
+	result, err := database.DB.Exec("UPDATE songs SET "+
+		"\"group\" = $1, song = $2, release_date = $3, text = $4, patronymic = $5 "+
+		"WHERE id = $6",
+		request.Group,
+		request.Song,
+		request.ReleaseDate,
+		request.Text,
+		request.Patronymic,
+		songID,
+	)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if rowsAffected == 0 {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Song not found",
+		})
+	}
+
+	log.Info("the song has been updated")
+	return ctx.SendString("The song has been updated")
 }
 
 func AddSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) error {
-	var request SongRequest
+	var request model.Song
 
 	if err := ctx.BodyParser(&request); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -63,7 +98,7 @@ func AddSongHandler(ctx *fiber.Ctx, cfg *config.Config, log *slog.Logger) error 
 	}
 
 	group := request.Group
-	songName := request.SongName
+	songName := request.Song
 
 	song, err := service.GetSong(cfg, group, songName)
 	if err != nil {

@@ -22,7 +22,10 @@ func SetupRoutes(app *fiber.App, cfg *config.Config, log *slog.Logger) {
 	})
 
 	// Update song
-	app.Put("/songs/:id", handler.UpdateSongHandler)
+	app.Put("/songs/:id", func(ctx *fiber.Ctx) error {
+		log.Info("PUT /songs/:id")
+		return handler.UpdateSongHandler(ctx, cfg, log)
+	})
 
 	// Add song
 	app.Post("/songs", func(ctx *fiber.Ctx) error {
