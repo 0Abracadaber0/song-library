@@ -113,3 +113,35 @@ func DeleteSong(songID string) error {
 
 	return nil
 }
+
+func OutputSongs(limit, offset int) ([]model.Song, error) {
+	rows, err := database.DB.Query(
+		`SELECT id, song, "group", release_date, patronymic FROM songs ORDER BY id LIMIT $1 OFFSET $2`,
+		limit, offset,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve songs: %w", err)
+	}
+	defer rows.Close()
+
+	var songs []model.Song
+	for rows.Next() {
+		var song model.Song
+		var songID string
+		if err := rows.Scan(&songID, &song.Song, &song.Group, &song.ReleaseDate, &song.Patronymic); err != nil {
+			return nil, fmt.Errorf("failed to scan song: %w", err)
+		}
+		verses, err := VerseToText(songID)
+		if err != nil {
+			return nil, err
+		}
+		song.Text = verses
+		songs = append(songs, song)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %w", err)
+	}
+
+	return songs, nil
+}

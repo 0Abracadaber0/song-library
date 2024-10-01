@@ -61,3 +61,32 @@ func OutputVerses(songID string, limit, offset int) ([]string, error) {
 
 	return verses, nil
 }
+
+func VerseToText(songID string) (string, error) {
+	rows, err := database.DB.Query(
+		`SELECT verse_text FROM verses WHERE song_id = $1`,
+		songID,
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to retrieve verses: %w", err)
+	}
+	defer rows.Close()
+
+	var verses string
+	for rows.Next() {
+		var verse string
+		if err := rows.Scan(&verse); err != nil {
+			return "", fmt.Errorf("failed to scan verse: %w", err)
+		}
+		if verses != "" {
+			verses += "\n\n"
+		}
+		verses += verse
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", fmt.Errorf("error during rows iteration: %w", err)
+	}
+
+	return verses, nil
+}
