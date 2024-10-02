@@ -16,7 +16,7 @@ import (
 // @Tags songs
 // @Produce json
 // @Param page query int false "Page number" default(1)
-// @Param size query int false "Page size" default(10)
+// @Param limit query int false "Page limit" default(10)
 // @Success 200 {array} models.Song "List of songs"
 // @Failure 500 {object} map[string]interface{}
 // @Router /songs [get]
@@ -32,7 +32,7 @@ func GetSongsHandler(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "Song ID"
 // @Param page query int false "Page number" default(1)
-// @Param size query int false "Page size" default(10)
+// @Param limit query int false "Page limit" default(10)
 // @Success 200 {array} string
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}

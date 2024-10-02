@@ -127,11 +127,10 @@ func OutputSongs(limit, offset int) ([]model.Song, error) {
 	var songs []model.Song
 	for rows.Next() {
 		var song model.Song
-		var songID string
-		if err := rows.Scan(&songID, &song.Song, &song.Group, &song.ReleaseDate, &song.Patronymic); err != nil {
+		if err := rows.Scan(&song.ID, &song.Song, &song.Group, &song.ReleaseDate, &song.Patronymic); err != nil {
 			return nil, fmt.Errorf("failed to scan song: %w", err)
 		}
-		verses, err := VerseToText(songID)
+		verses, err := VerseToText(song.ID)
 		if err != nil {
 			return nil, err
 		}
