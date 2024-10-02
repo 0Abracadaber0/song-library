@@ -16,14 +16,14 @@ func VersesHandler(ctx *fiber.Ctx, log *slog.Logger) error {
 
 	page, err := strconv.Atoi(pageStr)
 	if err != nil || page < 1 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
 			"error": "Invalid page number",
 		})
 	}
 
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil || limit < 1 {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
 			"error": "Invalid limit number",
 		})
 	}
@@ -32,12 +32,12 @@ func VersesHandler(ctx *fiber.Ctx, log *slog.Logger) error {
 
 	verses, err := service.OutputVerses(songID, limit, offset)
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
 			"error": err.Error(),
 		})
 	}
 
-	return ctx.JSON(fiber.Map{
+	return ctx.JSON(map[string]interface{}{
 		"page":   page,
 		"limit":  limit,
 		"verses": verses,

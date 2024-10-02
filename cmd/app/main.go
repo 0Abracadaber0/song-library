@@ -11,6 +11,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @title Song Library API
+// @version 1.0
+// @description API for managing songs and verses in the library.
+// @BasePath /
+
 func main() {
 	cfg := config.MustLoad()
 
