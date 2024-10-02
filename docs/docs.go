@@ -17,14 +17,14 @@ const docTemplate = `{
     "paths": {
         "/songs": {
             "get": {
-                "description": "Retrieves a paginated list of songs from the library",
+                "description": "Retrieves a paginated list of songs from the library with optional filtering by song, group, release date, and patronymic",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "songs"
                 ],
-                "summary": "Get all songs with pagination",
+                "summary": "Get all songs with pagination and filtering",
                 "parameters": [
                     {
                         "type": "integer",
@@ -36,8 +36,32 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 10,
-                        "description": "Page size",
-                        "name": "size",
+                        "description": "Page limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by song title",
+                        "name": "song",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by group name",
+                        "name": "group",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by release date (format: DD.MM.YYYY)",
+                        "name": "releaseDate",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by patronymic",
+                        "name": "patronymic",
                         "in": "query"
                     }
                 ],
@@ -51,8 +75,15 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -225,8 +256,8 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 10,
-                        "description": "Page size",
-                        "name": "size",
+                        "description": "Page limit",
+                        "name": "limit",
                         "in": "query"
                     }
                 ],
@@ -263,6 +294,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "group": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "patronymic": {

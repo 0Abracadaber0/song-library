@@ -4,6 +4,8 @@ definitions:
     properties:
       group:
         type: string
+      id:
+        type: string
       patronymic:
         type: string
       releaseDate:
@@ -28,7 +30,8 @@ info:
 paths:
   /songs:
     get:
-      description: Retrieves a paginated list of songs from the library
+      description: Retrieves a paginated list of songs from the library with optional
+        filtering by song, group, release date, and patronymic
       parameters:
       - default: 1
         description: Page number
@@ -36,10 +39,26 @@ paths:
         name: page
         type: integer
       - default: 10
-        description: Page size
+        description: Page limit
         in: query
-        name: size
+        name: limit
         type: integer
+      - description: Filter by song title
+        in: query
+        name: song
+        type: string
+      - description: Filter by group name
+        in: query
+        name: group
+        type: string
+      - description: 'Filter by release date (format: DD.MM.YYYY)'
+        in: query
+        name: releaseDate
+        type: string
+      - description: Filter by patronymic
+        in: query
+        name: patronymic
+        type: string
       produces:
       - application/json
       responses:
@@ -49,12 +68,17 @@ paths:
             items:
               $ref: '#/definitions/models.Song'
             type: array
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Invalid query parameters
           schema:
             additionalProperties: true
             type: object
-      summary: Get all songs with pagination
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all songs with pagination and filtering
       tags:
       - songs
     post:
@@ -164,9 +188,9 @@ paths:
         name: page
         type: integer
       - default: 10
-        description: Page size
+        description: Page limit
         in: query
-        name: size
+        name: limit
         type: integer
       produces:
       - application/json

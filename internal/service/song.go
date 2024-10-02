@@ -5,6 +5,7 @@ import (
 	"song_library/internal/config"
 	"song_library/internal/database"
 	model "song_library/internal/models"
+	"strconv"
 )
 
 func AddSong(song *model.Song) error {
@@ -114,11 +115,37 @@ func DeleteSong(songID string) error {
 	return nil
 }
 
-func OutputSongs(limit, offset int) ([]model.Song, error) {
-	rows, err := database.DB.Query(
-		`SELECT id, song, "group", release_date, patronymic FROM songs ORDER BY id LIMIT $1 OFFSET $2`,
-		limit, offset,
-	)
+func OutputSongs(songFilter, groupFilter, releaseDateFilter, patronymicFilter string, limit, offset int) ([]model.Song, error) {
+	query := `SELECT id, song, "group", release_date, patronymic FROM songs WHERE 1=1`
+	args := []interface{}{}
+
+	argsCount := 1
+	if songFilter != "" {
+		query += " AND song ILIKE $" + strconv.Itoa(argsCount)
+		argsCount++
+		args = append(args, "%"+songFilter+"%")
+	}
+	if groupFilter != "" {
+		query += " AND \"group\" ILIKE $" + strconv.Itoa(argsCount)
+		argsCount++
+		args = append(args, "%"+groupFilter+"%")
+	}
+	if releaseDateFilter != "" {
+		query += " AND release_date ILIKE $" + strconv.Itoa(argsCount)
+		argsCount++
+		args = append(args, releaseDateFilter)
+	}
+	if patronymicFilter != "" {
+		query += " AND patronymic ILIKE $" + strconv.Itoa(argsCount)
+		argsCount++
+		args = append(args, "%"+patronymicFilter+"%")
+	}
+
+	query += " ORDER BY id LIMIT $" + strconv.Itoa(argsCount) +
+		" OFFSET $" + strconv.Itoa(argsCount+1)
+	args = append(args, limit, offset)
+
+	rows, err := database.DB.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve songs: %w", err)
 	}

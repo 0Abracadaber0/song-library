@@ -30,7 +30,14 @@ func SongsHandler(ctx *fiber.Ctx) error {
 
 	offset := (page - 1) * limit
 
-	songs, err := service.OutputSongs(limit, offset)
+	// Получаем параметры фильтрации из запроса
+	song := ctx.Query("song")
+	group := ctx.Query("group")
+	releaseDate := ctx.Query("releaseDate")
+	patronymic := ctx.Query("patronymic")
+
+	// Передаем параметры фильтрации в сервис
+	songs, err := service.OutputSongs(song, group, releaseDate, patronymic, limit, offset)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
 			"error": "Failed to retrieve songs: " + err.Error(),

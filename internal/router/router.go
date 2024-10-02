@@ -11,14 +11,19 @@ import (
 	"github.com/gofiber/swagger"
 )
 
-// @Summary Get all songs with pagination
-// @Description Retrieves a paginated list of songs from the library
+// @Summary Get all songs with pagination and filtering
+// @Description Retrieves a paginated list of songs from the library with optional filtering by song, group, release date, and patronymic
 // @Tags songs
 // @Produce json
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Page limit" default(10)
+// @Param song query string false "Filter by song title"
+// @Param group query string false "Filter by group name"
+// @Param releaseDate query string false "Filter by release date (format: DD.MM.YYYY)"
+// @Param patronymic query string false "Filter by patronymic"
 // @Success 200 {array} models.Song "List of songs"
-// @Failure 500 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{} "Invalid query parameters"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /songs [get]
 func GetSongsHandler(ctx *fiber.Ctx) error {
 	log := ctx.Locals("log").(*slog.Logger)
